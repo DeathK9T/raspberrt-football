@@ -10,41 +10,41 @@ using namespace std;
 using namespace cv;
 
  const int   projectorWidth= 1920,
-            projectorHeight= 1080,   // Разрешение проектора
+            projectorHeight= 1080,   
 
-                  cameraNum= 0,      // номер камеры для координат
-               hitCameraNum= 1,      // номер камеры для детекта движения
+                  cameraNum= 0,      
+               hitCameraNum= 1,      
 
                    screenUp= 50,
                  screenDown= 260,
                  screenLeft= 80,
-                screenRight= 450,    // Координаты экрана в переводе на получаемые с веб камеры
+                screenRight= 450,    
 
-                  ballColor= 1,     // Цвет отслеживаемого шарика
-                 ballDifNum= 10,    // Количество пикселей для детекта шарика
+                  ballColor= 1,     
+                 ballDifNum= 10,    
                   ballThres= 8,
-                    ballTtl= 5,     // количество кадров без мячика
+                    ballTtl= 5,     
 
-             motionTreshold= 80,     // Порог для детектора движения
-               motionDifNum= 10,     // Количество отличающихся пикселей для
-                                     // срабатывания детектора движения
-                   startTtl= 30,     // минимальное время между двумя столкновениями
-                detectDelay= 4;      // задержка между срабатыванием датчика и столкновением
+             motionTreshold= 80,     
+               motionDifNum= 10,     
+                                     
+                   startTtl= 30,     
+                detectDelay= 4;      
 
-const string pointsFileName= "C:/points.txt";   // файл для записи координат
+const string pointsFileName= "C:/points.txt";   
 
 int main()
 {
-    Mat frame,      // фрейм с камеры
+    Mat frame,      
         frameHSV,
         frameBitmap,
 
-        frameCurrent,   // текущий фрейм для детекта движения
-        framePriv,      // предыдущий фрейм для детекта движения
+        frameCurrent,   
+        framePriv,      
 
-        mask;           // разница между текущим и предыдущим фреймом
+        mask;           
 
-    vector<Mat> imgs;   // картинки
+    vector<Mat> imgs;   
     Mat timg;
 
     int ttl=startTtl,ttl2=0,ttl3=0,explTtl=0;
@@ -58,38 +58,31 @@ int main()
     int clr;
     char key;
 
-    //         Подключаем основную камеру (для координат)
-
     CvCapture* capture = cvCaptureFromCAM(cameraNum);
     assert(capture);
     cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 640);
     cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 480);
 
-
-    //          Подключаем камеру для детекта движения
     CvCapture* captureHit = cvCaptureFromCAM(hitCameraNum);
     assert(captureHit);
     cvSetCaptureProperty(captureHit, CV_CAP_PROP_FRAME_WIDTH, 640);
     cvSetCaptureProperty(captureHit, CV_CAP_PROP_FRAME_HEIGHT, 480);
 
-//    cvNamedWindow("win", CV_WINDOW_AUTOSIZE);
-
-                // получаем первый кадр для детектора движения
+//    cvNamedWindow("win", CV_WINDOW_AUTOSIZE);  
 
         frame=cvQueryFrame(captureHit);
-        cvtColor(frame, frame, CV_RGB2GRAY );   // из цветного в серое
-        GaussianBlur(frame,framePriv,cv::Size( 3, 3 ), -1);  // убираем шумы
+        cvtColor(frame, frame, CV_RGB2GRAY );   // ГЁГ§ Г¶ГўГҐГІГ­Г®ГЈГ® Гў Г±ГҐГ°Г®ГҐ
+        GaussianBlur(frame,framePriv,cv::Size( 3, 3 ), -1);  // ГіГЎГЁГ°Г ГҐГ¬ ГёГіГ¬Г»
 
     while(true)
     {
-        //      Детектор движения
         frame=cvQueryFrame(captureHit);
         if (ttl<=0)
         {
-            cvtColor(frame, frame, CV_RGB2GRAY );   // из цветного в серое
-            GaussianBlur(frame,frameCurrent,cv::Size( 3, 3 ), -1);  // убираем шумы
-            absdiff(frameCurrent,framePriv,mask);  // смотрим разницу между кадрами
-            framePriv=frameCurrent.clone(); // сохраняем предыдущий кадр
+            cvtColor(frame, frame, CV_RGB2GRAY );   
+            GaussianBlur(frame,frameCurrent,cv::Size( 3, 3 ), -1);  
+            absdiff(frameCurrent,framePriv,mask);  
+            framePriv=frameCurrent.clone(); 
             threshold(mask,mask,motionTreshold,255,cv::THRESH_BINARY);
             if ((countNonZero(mask)>motionDifNum) && (ttl2<ballTtl) && (nx!=0) && (ny!=0))
             {
@@ -104,7 +97,7 @@ int main()
         if (ttl3>0) ttl3--;
 
         if (ttl3==1)
-        {// Попадание
+        {// ГЏГ®ГЇГ Г¤Г Г­ГЁГҐ
 
                  hx=nx;
                  hy=ny;
@@ -115,14 +108,10 @@ int main()
                  explTtl=7;
         }
 
-
-
  //       imshow("win", frame);
-
 
 //        cvWaitKey(33);
 
-        //      Детектор координат мячика
         clr=ballColor;
         frame=cvQueryFrame(capture);
         cvtColor(frame,frameHSV,CV_BGR2HSV);
